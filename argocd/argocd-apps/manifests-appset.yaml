@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: platform-ai-demo
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - app: metallb-config
+            path: argocd/gitops/manifest/metallb
+            namespace: metallb-system
+            syncWave: "-1"
+          - app: letsencrypt
+            path: argocd/gitops/manifest/letsencrypt
+            namespace: default
+            syncWave: "1"
+          - app: k0smotron
+            path: argocd/gitops/manifest/k0smotron
+            namespace: k0smotron
+            syncWave: "1"
+  template:
+    metadata:
+      name: '{{app}}'
+      annotations:
+        argocd.argoproj.io/sync-wave: '{{syncWave}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/RootExMachina/platform-ai-demo.git
+        path: '{{path}}'
+        targetRevision: main
+        directory:
+          recurse: true
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{namespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+          - SkipDryRunOnMissingResource=true
