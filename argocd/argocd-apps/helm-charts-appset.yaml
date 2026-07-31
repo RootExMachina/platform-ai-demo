@@ -7,40 +7,7 @@ spec:
   generators:
     - list:
         elements:
-          - app: metallb
-            enabled: "false"
-            repoURL: https://metallb.github.io/metallb
-            chart: metallb
-            targetRevision: 0.16.1
-            namespace: metallb-system
-            syncWave: "-3"
-            helmValues: ""
-
-          - app: ingress-nginx
-            enabled: "false"
-            repoURL: https://kubernetes.github.io/ingress-nginx
-            chart: ingress-nginx
-            targetRevision: 4.15.1
-            namespace: ingress-nginx
-            syncWave: "0"
-            helmValues: |
-              controller:
-                admissionWebhooks:
-                  enabled: false
-                extraArgs:
-                  enable-ssl-passthrough: "true"
-                  enable-annotation-validation: "false"
-                allowSnippetAnnotations: "true"
-                config:
-                  annotations-risk-level: "Critical"
-                service:
-                  annotations:
-                    metallb.universe.tf/address-pool: ingress-pool
-                  externalIPs:
-                    - 164.152.58.109
-
           - app: cert-manager
-            enabled: "true"
             repoURL: https://charts.jetstack.io
             chart: cert-manager
             targetRevision: v1.19.2
@@ -52,67 +19,93 @@ spec:
                 enableGatewayAPI: false
               replicaCount: 1
 
-          - app: longhorn
-            enabled: "false"
-            repoURL: https://charts.longhorn.io
-            chart: longhorn
-            targetRevision: 1.12.0
-            namespace: longhorn-system
-            syncWave: "-2"
-            helmValues: |
-              defaultSettings:
-                defaultReplicaCount: 2
-                allowVolumeCreationWithDegradedAvailability: true
-              persistence:
-                defaultClassReplicaCount: 2
-              preUpgradeChecker:
-                jobEnabled: false
+          # Descomente para instalar os outros componentes via GitOps:
+          # - app: metallb
+          #   repoURL: https://metallb.github.io/metallb
+          #   chart: metallb
+          #   targetRevision: 0.16.1
+          #   namespace: metallb-system
+          #   syncWave: "-3"
+          #   helmValues: ""
 
-          - app: thunderid
-            enabled: "false"
-            repoURL: ghcr.io/thunder-id/helm-charts
-            chart: thunderid
-            targetRevision: "*"
-            namespace: thunderid
-            syncWave: "2"
-            helmValues: |
-              deployment:
-                replicaCount: 1
-              ingress:
-                enabled: true
-                hostname: auth.choreo.rootexmachina.com
-                annotations:
-                  cert-manager.io/cluster-issuer: letsencrypt-prod
-                tls:
-                  - secretName: thunderid-tls
-                    hosts:
-                      - auth.choreo.rootexmachina.com
-              persistence:
-                enabled: true
-                storageClass: longhorn
-                accessMode: ReadWriteOnce
-                size: 2Gi
-              configuration:
-                database:
-                  config:
-                    type: sqlite
-                    sqlitePath: database/configdb.db
-                    sqliteOptions: "_journal_mode=WAL&_busy_timeout=5000&_pragma=foreign_keys(1)"
-                  runtime_transient:
-                    type: sqlite
-                    sqlitePath: database/runtime_transient.db
-                    sqliteOptions: "_journal_mode=WAL&_busy_timeout=5000&_pragma=foreign_keys(1)"
-                  entity:
-                    type: sqlite
-                    sqlitePath: database/entitydb.db
-                    sqliteOptions: "_journal_mode=WAL&_busy_timeout=5000&_pragma=foreign_keys(1)"
-                  runtime_persistent:
-                    type: sqlite
-                    sqlitePath: database/runtime_persistent.db
-                    sqliteOptions: "_journal_mode=WAL&_busy_timeout=5000&_pragma=foreign_keys(1)"
-        selector:
-          matchLabels:
-            enabled: "true"
+          # - app: ingress-nginx
+          #   repoURL: https://kubernetes.github.io/ingress-nginx
+          #   chart: ingress-nginx
+          #   targetRevision: 4.15.1
+          #   namespace: ingress-nginx
+          #   syncWave: "0"
+          #   helmValues: |
+          #     controller:
+          #       admissionWebhooks:
+          #         enabled: false
+          #       extraArgs:
+          #         enable-ssl-passthrough: "true"
+          #         enable-annotation-validation: "false"
+          #       allowSnippetAnnotations: "true"
+          #       config:
+          #         annotations-risk-level: "Critical"
+          #       service:
+          #         annotations:
+          #           metallb.universe.tf/address-pool: ingress-pool
+          #         externalIPs:
+          #           - 164.152.58.109
+
+          # - app: longhorn
+          #   repoURL: https://charts.longhorn.io
+          #   chart: longhorn
+          #   targetRevision: 1.12.0
+          #   namespace: longhorn-system
+          #   syncWave: "-2"
+          #   helmValues: |
+          #     defaultSettings:
+          #       defaultReplicaCount: 2
+          #       allowVolumeCreationWithDegradedAvailability: true
+          #     persistence:
+          #       defaultClassReplicaCount: 2
+          #     preUpgradeChecker:
+          #       jobEnabled: false
+
+          # - app: thunderid
+          #   repoURL: ghcr.io/thunder-id/helm-charts
+          #   chart: thunderid
+          #   targetRevision: "*"
+          #   namespace: thunderid
+          #   syncWave: "2"
+          #   helmValues: |
+          #     deployment:
+          #       replicaCount: 1
+          #     ingress:
+          #       enabled: true
+          #       hostname: auth.choreo.rootexmachina.com
+          #       annotations:
+          #         cert-manager.io/cluster-issuer: letsencrypt-prod
+          #       tls:
+          #         - secretName: thunderid-tls
+          #           hosts:
+          #             - auth.choreo.rootexmachina.com
+          #     persistence:
+          #       enabled: true
+          #       storageClass: longhorn
+          #       accessMode: ReadWriteOnce
+          #       size: 2Gi
+          #     configuration:
+          #       database:
+          #         config:
+          #           type: sqlite
+          #           sqlitePath: database/configdb.db
+          #           sqliteOptions: "_journal_mode=WAL&_busy_timeout=5000&_pragma=foreign_keys(1)"
+          #         runtime_transient:
+          #           type: sqlite
+          #           sqlitePath: database/runtime_transient.db
+          #           sqliteOptions: "_journal_mode=WAL&_busy_timeout=5000&_pragma=foreign_keys(1)"
+          #         entity:
+          #           type: sqlite
+          #           sqlitePath: database/entitydb.db
+          #           sqliteOptions: "_journal_mode=WAL&_busy_timeout=5000&_pragma=foreign_keys(1)"
+          #         runtime_persistent:
+          #           type: sqlite
+          #           sqlitePath: database/runtime_persistent.db
+          #           sqliteOptions: "_journal_mode=WAL&_busy_timeout=5000&_pragma=foreign_keys(1)"
   template:
     metadata:
       name: '{{app}}'
