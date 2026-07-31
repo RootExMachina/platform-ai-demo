@@ -1,0 +1,23 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: metallb-selfsigned-issuer
+  namespace: metallb-system
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: metallb-webhook-cert
+  namespace: metallb-system
+spec:
+  secretName: metallb-webhook-cert
+  dnsNames:
+  - metallb-webhook-service
+  - metallb-webhook-service.metallb-system
+  - metallb-webhook-service.metallb-system.svc
+  - metallb-webhook-service.metallb-system.svc.cluster.local
+  issuerRef:
+    name: metallb-selfsigned-issuer
+    kind: Issuer
