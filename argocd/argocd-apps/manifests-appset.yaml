@@ -8,17 +8,23 @@ spec:
     - list:
         elements:
           - app: metallb-config
+            enabled: "false"
             path: argocd/gitops/manifest/metallb
             namespace: metallb-system
             syncWave: "-1"
           - app: letsencrypt
+            enabled: "false"
             path: argocd/gitops/manifest/letsencrypt
             namespace: default
             syncWave: "1"
           - app: k0smotron
+            enabled: "false"
             path: argocd/gitops/manifest/k0smotron
             namespace: k0smotron
             syncWave: "1"
+        selector:
+          matchLabels:
+            enabled: "true"
   template:
     metadata:
       name: '{{app}}'
